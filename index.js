@@ -4,6 +4,24 @@ const cors = require('cors')
 app.use(express.json())
 app.use(express.static('build'))
 app.use(cors())
+const mongoose = require('mongoose')
+
+if ( process.argv.length < 3 ) {
+  console.log('Please provide the password as an argument: node mongo.js <password>')
+  process.exit(1)
+}
+
+const password = process.argv[2]
+const url = `mongodb+srv://note-data:${password}@cluster0.yeiup.mongodb.net/note-app?retryWrites=true&w=majority`
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  date: Date,
+  important: Boolean,
+})
+
+const Note = mongoose.model('Note', noteSchema)
 
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
@@ -41,7 +59,9 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/notes', (req, res) => {
-  res.json(notes)
+  Note.find({}).then(note => {
+    res.json(note)
+  })
 })
 
 app.get('/api/notes/:id', (req, res) => {
