@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const app = express()
 const cors = require('cors')
@@ -68,30 +70,22 @@ app.delete('/api/notes/:id', (req, res) => {
 app.post('/api/notes/', (req, res) => {
   const body = req.body
 
-  if (!body) {
+  if (body.content === undefined) {
     return res.status(400).json({ 
       error: 'content missing' 
     })
   }
 
-  const note = {
+  const note =new Note({
     content: body.content,
     important: body.important || false,
     date: new Date(),
-    id: generateId(),
-  }
+  })
 
-  notes = notes.concat(note)
-  console.log(note)
-  res.json(note)
+  note.save().then(savedNote => {
+    res.json(savedNote)
+  })
 })
-
-const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => n.id))
-    : 0
-  return maxId + 1
-}
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
