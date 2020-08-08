@@ -16,7 +16,6 @@ const requestLogger = (request, response, next) => {
   console.log('---')
   next()
 }
-
 app.use(requestLogger)
 
 let notes = [
@@ -50,7 +49,7 @@ app.get('/api/notes', (req, res) => {
   })
 })
 
-app.get('/api/notes/:id', (req, res) => {
+app.get('/api/notes/:id', (req, res, next) => {
   const id = Number(req.params.id)
   Note.findById(id)
     .then(note => {
@@ -60,10 +59,7 @@ app.get('/api/notes/:id', (req, res) => {
         res.status(404).end()
       }
     })
-    .catch(error => {
-      console.log(error)
-      res.status(500).end()
-    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/notes/:id', (req, res, next) => {
@@ -97,8 +93,17 @@ app.post('/api/notes/', (req, res) => {
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-
 app.use(unknownEndpoint)
+
+const errorHandler = (error, requset, response, next) => {
+  console.error(error.message)
+  if (error.name === 'CastError', error.kind = 'ObjectId') {
+    return response.status(400).send({ error: 'CastError && ObjectId' })
+  }
+
+  next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
