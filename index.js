@@ -49,7 +49,7 @@ app.post('/api/notes/', (req, res, next) => {
     .save()
     .then((savedNote) => savedNote.toJSON())
     .then((savedAndFormattedNote) => {
-      res.json(savedAndFormattedNote.toJSON());
+      res.json(savedAndFormattedNote);
     })
     .catch((error) => next(error));
 
