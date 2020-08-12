@@ -1,23 +1,19 @@
-/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
 
 mongoose.set('useFindAndModify', false);
-const url = process.env.MONGODB_URI;
-
-mongoose
-  .connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log('connected to MongoDB');
-  })
-  .catch((error) => {
-    console.log('error connecting to MongoDB:', error.message);
-  });
 
 const noteSchema = new mongoose.Schema({
-  content: String,
-  date: Date,
+  content: {
+    type: String,
+    required: true,
+    minlength: 5,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
   important: Boolean,
 });
 
