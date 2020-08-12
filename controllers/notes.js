@@ -19,7 +19,7 @@ notesRouter.get('/:id', (request, response, next) => {
     .catch((error) => next(error));
 });
 
-notesRouter.post('/', (request, response, next) => {
+notesRouter.post('/', async (request, response, next) => {
   const { body } = request;
 
   if (body.content === undefined) {
@@ -34,14 +34,12 @@ notesRouter.post('/', (request, response, next) => {
     date: new Date(),
   });
 
-  note
-    .save()
-    .then((savedNote) => savedNote.toJSON())
-    .then((savedAndFormattedNote) => {
-      response.json(savedAndFormattedNote);
-    })
-    .catch((error) => next(error));
-
+  try {
+    const savedNote = await note.save();
+    response.json(savedNote);
+  } catch (error) {
+    next(error);
+  }
   return null;
 });
 
