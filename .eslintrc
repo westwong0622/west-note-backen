@@ -1,4 +1,13 @@
 {
+  "env": {
+    "env": {
+      "commonjs": true,
+      "es6": true,
+      "node": true,
+      "jest": true
+    },
+    "jest": true
+  },
   "extends": ["airbnb", "prettier"],
   "plugins": ["prettier"],
   "rules": {
