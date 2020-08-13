@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const supertest = require('supertest');
 const helper = require('./test_helper');
 const app = require('../app');
+const logger = require('../utils/logger');
 
 const api = supertest(app);
 
@@ -17,36 +18,50 @@ beforeEach(async () => {
   await noteObject.save();
 });
 
-test('note without content is not added', async () => {
-  const newNote = {
-    important: true,
-  };
+test('a specific note can be viewed', async () => {
+  const notesAtStart = await helper.notesInDb();
 
-  await api.post('/api/notes').send(newNote).expect(400);
+  const noteToView = notesAtStart[0];
+  logger.info(noteToView);
 
-  const notesAtEnd = await helper.notesInDb();
-  expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
-});
-
-test('a valid note can be added', async () => {
-  const newNote = {
-    content: 'async/await simplifies making async calls',
-    important: true,
-    date: new Date(),
-  };
-
-  await api
-    .post('/api/notes')
-    .send(newNote)
+  const resultNote = await api
+    .get(`/api/notes/${noteToView.id}`)
     .expect(200)
     .expect('Content-Type', /application\/json/);
 
-  const notesAtEnd = await helper.notesInDb();
-  expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1);
-
-  const contents = notesAtEnd.map((n) => n.content);
-  expect(contents).toContain('async/await simplifies making async calls');
+  expect(resultNote.body).toEqual(noteToView);
 });
+
+// test('note without content is not added', async () => {
+//   const newNote = {
+//     important: true,
+//   };
+
+//   await api.post('/api/notes').send(newNote).expect(400);
+
+//   const notesAtEnd = await helper.notesInDb();
+//   expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
+// });
+
+// test('a valid note can be added', async () => {
+//   const newNote = {
+//     content: 'async/await simplifies making async calls',
+//     important: true,
+//     date: new Date(),
+//   };
+
+//   await api
+//     .post('/api/notes')
+//     .send(newNote)
+//     .expect(200)
+//     .expect('Content-Type', /application\/json/);
+
+//   const notesAtEnd = await helper.notesInDb();
+//   expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1);
+
+//   const contents = notesAtEnd.map((n) => n.content);
+//   expect(contents).toContain('async/await simplifies making async calls');
+// });
 
 // test('notes are returned as json', async () => {
 //   await api
