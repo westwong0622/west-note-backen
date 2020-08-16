@@ -11,11 +11,10 @@ const Note = require('../models/note');
 beforeEach(async () => {
   await Note.deleteMany({});
 
-  let noteObject = new Note(helper.initialNotes[0]);
-  await noteObject.save();
+  const noteObjects = helper.initialNotes.map((note) => new Note(note));
+  const promiseArray = noteObjects.map((note) => note.save());
 
-  noteObject = new Note(helper.initialNotes[1]);
-  await noteObject.save();
+  await Promise.all(promiseArray);
 });
 
 test('a specific note can be viewed', async () => {
